@@ -3,7 +3,14 @@ import { create } from "zustand";
 export interface User {
   id: string;
   name: string;
-  role: "ngo" | "volunteer" | "donor" | "educator" | "community" | "fieldworker";
+  role:
+    | "ngo"
+    | "volunteer"
+    | "donor"
+    | "educator"
+    | "community"
+    | "fieldworker"
+    | "admin";
   email: string;
   organization?: string;
   skills?: string[];

@@ -12,13 +12,22 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  // Add backend base URL for API calls
+  const baseUrl = url.startsWith('/api') ? 'http://localhost:5000' : '';
+  const fullUrl = baseUrl + url;
+  
+  console.log(`🌐 API Request: ${method} ${fullUrl}`);
+  console.log(`📦 Request data:`, data);
+  
+  const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
+  console.log(`📡 Response status: ${res.status} ${res.statusText}`);
+  
   await throwIfResNotOk(res);
   return res;
 }
@@ -29,7 +38,12 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const url = queryKey.join("/") as string;
+    // Add backend base URL for API calls
+    const baseUrl = url.startsWith('/api') ? 'http://localhost:5000' : '';
+    const fullUrl = baseUrl + url;
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
     });
 

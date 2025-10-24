@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { 
   UserPlus, 
   Handshake, 
@@ -16,13 +18,133 @@ import {
   Calendar,
   Building,
   DollarSign,
-  Laptop
+  Laptop,
+  LogIn
 } from "lucide-react";
 import { mockOpportunities } from "@/lib/mock-data";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
+import { useAppStore } from "@/lib/store";
+import { useLocation } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
+import { redirectToRoleDashboard } from "@/lib/role-redirect";
 
 export default function EmpowerBridge() {
   const [selectedSkills, setSelectedSkills] = useState(["Teaching"]);
   const skills = ["Teaching", "Cooking", "Healthcare", "Technology", "Administration", "Marketing"];
+  
+  const { toast } = useToast();
+  const { setUser } = useAppStore();
+  const [, setLocation] = useLocation();
+
+  const loginForm = useForm<{ email: string; password: string }>();
+  const registerForm = useForm<{ 
+    name: string; 
+    email: string; 
+    password: string; 
+    confirmPassword: string;
+    role: "admin" | "consumer" | "service-provider" 
+  }>();
+
+  async function handleLoginSubmit(values: { email: string; password: string }) {
+    try {
+      console.log("🚀 Starting login process...", values);
+      const res = await apiRequest("POST", "/api/test/login", {
+        email: values.email,
+        password: values.password,
+      });
+      
+      console.log("✅ Login response received:", res);
+      
+      if (!res.ok) {
+        const error = await res.json();
+        console.log("❌ Login error response:", error);
+        throw new Error(error.error || 'Login failed');
+      }
+      
+      const user = await res.json();
+      console.log("🎉 Login successful, user data:", user);
+      
+      setUser({ id: user.user.id, name: user.user.name, role: user.user.role, email: user.user.email, joinedDate: new Date() } as any);
+      toast({ title: "Welcome back!", description: "You are now logged in." });
+      
+      // Redirect to role-specific dashboard
+      redirectToRoleDashboard(user.user.role, setLocation);
+    } catch (error) {
+      console.error("💥 Login error:", error);
+      toast({ 
+        title: "Login failed", 
+        description: error instanceof Error ? error.message : "Please try again",
+        variant: "destructive"
+      });
+    }
+  }
+
+  async function handleRegisterSubmit(values: { 
+    name: string; 
+    email: string; 
+    password: string; 
+    confirmPassword: string;
+    role: "admin" | "consumer" | "service-provider" 
+  }) {
+    console.log("🚀 Starting registration process...", values);
+    
+    // Basic client-side validation
+    if (values.password !== values.confirmPassword) {
+      console.log("❌ Password mismatch");
+      toast({ 
+        title: "Validation Error", 
+        description: "Passwords don't match",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (values.password.length < 6) {
+      console.log("❌ Password too short");
+      toast({ 
+        title: "Validation Error", 
+        description: "Password must be at least 6 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      console.log("📡 Making API request to /api/test/register");
+      const res = await apiRequest("POST", "/api/test/register", {
+        email: values.email,
+        name: values.name,
+        role: values.role,
+        password: values.password,
+        confirmPassword: values.confirmPassword,
+      });
+      
+      console.log("✅ Registration response received:", res);
+      
+      if (!res.ok) {
+        const error = await res.json();
+        console.log("❌ Registration error response:", error);
+        throw new Error(error.error || 'Registration failed');
+      }
+      
+      const created = await res.json();
+      console.log("🎉 User created successfully:", created);
+      
+      setUser({ id: created.user.id, name: created.user.name, role: created.user.role, email: created.user.email, joinedDate: new Date() } as any);
+      toast({ title: "Account created", description: `Registered as ${values.role.replace(/([A-Z])/g, " $1").trim()}` });
+      
+      // Redirect to role-specific dashboard
+      redirectToRoleDashboard(values.role, setLocation);
+    } catch (error) {
+      console.error("💥 Registration error:", error);
+      toast({ 
+        title: "Registration failed", 
+        description: error instanceof Error ? error.message : "Please try again",
+        variant: "destructive"
+      });
+    }
+  }
 
   const toggleSkill = (skill: string) => {
     setSelectedSkills(prev => 
@@ -43,14 +165,143 @@ export default function EmpowerBridge() {
               Volunteer Matching & Partnership Coordination Platform
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-white text-trust-blue px-6 py-3 font-semibold hover:bg-gray-100" data-testid="button-join-volunteer">
-                <UserPlus className="mr-2 h-5 w-5" />
-                Join as Volunteer
-              </Button>
-              <Button className="bg-blue-700 text-white px-6 py-3 font-semibold hover:bg-blue-800" data-testid="button-find-partners">
-                <Handshake className="mr-2 h-5 w-5" />
-                Find Partners
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="bg-white text-trust-blue px-6 py-3 font-semibold hover:bg-gray-100" data-testid="button-login">
+                    <LogIn className="mr-2 h-5 w-5" />
+                    Login
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Login to EmpowerBridge</DialogTitle>
+                  </DialogHeader>
+                  <Form {...loginForm}>
+                    <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className="space-y-4">
+                      <FormField
+                        control={loginForm.control}
+                        name="email"
+                        render={({ field }: { field: any }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="you@example.com" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={loginForm.control}
+                        name="password"
+                        render={({ field }: { field: any }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <Input type="password" placeholder="••••••••" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="submit" className="w-full bg-trust-blue text-white hover:bg-blue-700">Sign In</Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="bg-blue-700 text-white px-6 py-3 font-semibold hover:bg-blue-800" data-testid="button-register">
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    Register
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create your EmpowerBridge account</DialogTitle>
+                  </DialogHeader>
+                  <Form {...registerForm}>
+                    <form onSubmit={registerForm.handleSubmit(handleRegisterSubmit)} className="space-y-4">
+                      <FormField
+                        control={registerForm.control}
+                        name="name"
+                        render={({ field }: { field: any }) => (
+                          <FormItem>
+                            <FormLabel>Full name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Jane Doe" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="email"
+                        render={({ field }: { field: any }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="you@example.com" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <Input type="password" placeholder="Create a password" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Confirm Password</FormLabel>
+                            <FormControl>
+                              <Input type="password" placeholder="Confirm your password" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="role"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Role</FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                  <SelectItem value="consumer">Consumer</SelectItem>
+                                  <SelectItem value="service-provider">Service Provider</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="submit" className="w-full bg-trust-blue text-white hover:bg-blue-700">Create account</Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>

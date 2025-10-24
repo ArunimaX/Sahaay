@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahaay - Collaborative Tech Platform to Combat Poverty, Hunger, and Education Gaps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'hope-green': '#2B7A0B',
+                        'trust-blue': '#1D4ED8',
+                        'optimism-gold': '#F59E0B',
+                        'urgent-red': '#DC2626',
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="font-inter bg-gray-50" x-data="{ 
+    currentView: 'landing',
+    userRole: null,
+    showMobileMenu: false,
+    selectedLocation: null,
+    reportData: {},
+    volunteerMatches: []
+}">
+
+<!-- @COMPONENT: Navigation [responsive header with role-based menu] -->
+<nav class="bg-white shadow-lg sticky top-0 z-50" x-show="currentView !== 'onboarding'">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center cursor-pointer" @click="currentView = 'landing'">
+                <!-- Logo placeholder - would use provided PNG -->
+                <div class="flex-shrink-0 flex items-center">
+                    <img src="attached_assets/00004_1755739132526.png" alt="Sahaay Logo" class="h-8 w-auto" data-mock="true">
+                </div>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <button @click="currentView = 'feedconnect'" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-hope-green transition-colors">FeedConnect</button>
+                    <button @click="currentView = 'empowerbridge'" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-trust-blue transition-colors">EmpowerBridge</button>
+                    <button @click="currentView = 'edubridge'" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-optimism-gold transition-colors">EduBridge</button>
+                    <button @click="currentView = 'impact'" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Impact</button>
+                </div>
+            </div>
+
+            <!-- User Actions -->
+            <div class="hidden md:flex items-center space-x-4">
+                <template x-if="!userRole">
+                    <button @click="currentView = 'onboarding'" class="bg-trust-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Get Started</button>
+                </template>
+                <template x-if="userRole">
+                    <button @click="currentView = 'dashboard'" class="bg-hope-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Dashboard</button>
+                </template>
+            </div>
+
+            <!-- Mobile menu button -->
+            <button @click="showMobileMenu = !showMobileMenu" class="md:hidden p-2 text-gray-600">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div x-show="showMobileMenu" class="md:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <button @click="currentView = 'feedconnect'; showMobileMenu = false" class="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100">FeedConnect</button>
+                <button @click="currentView = 'empowerbridge'; showMobileMenu = false" class="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100">EmpowerBridge</button>
+                <button @click="currentView = 'edubridge'; showMobileMenu = false" class="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100">EduBridge</button>
+                <button @click="currentView = 'impact'; showMobileMenu = false" class="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100">Impact</button>
+                <template x-if="!userRole">
+                    <button @click="currentView = 'onboarding'; showMobileMenu = false" class="block w-full text-left px-3 py-2 bg-trust-blue text-white rounded">Get Started</button>
+                </template>
+                <template x-if="userRole">
+                    <button @click="currentView = 'dashboard'; showMobileMenu = false" class="block w-full text-left px-3 py-2 bg-hope-green text-white rounded">Dashboard</button>
+                </template>
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- @END_COMPONENT: Navigation -->
+
+<!-- @COMPONENT: LandingPage [hero, features, impact stats] -->
+<div x-show="currentView === 'landing'" class="min-h-screen">
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-br from-trust-blue via-hope-green to-optimism-gold min-h-screen flex items-center">
+        <!-- Background overlay for better contrast -->
+        <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        
+        <!-- Hero background image -->
+        <!-- A diverse group of volunteers distributing food packages to families in a rural community setting -->
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080');"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                    Together We Can End Poverty, Hunger & Education Gaps
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed">
+                    A unified digital platform fostering collaboration, data sharing, and citizen engagement to effectively support underserved communities worldwide.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button @click="currentView = 'onboarding'" class="bg-hope-green hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all transform hover:scale-105">
+                        <i class="fas fa-hands-helping mr-2"></i>
+                        Start Making Impact
+                    </button>
+                    <button @click="currentView = 'impact'" class="bg-white/20 hover:bg-white/30 backdrop-blur text-white border-2 border-white px-8 py-4 rounded-lg text-lg font-semibold transition-all">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        View Impact Data
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+            <div class="animate-bounce text-white text-2xl">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Overview -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Three Pillars of Change</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Our comprehensive platform addresses the interconnected challenges of poverty, hunger, and education through targeted solutions.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- FeedConnect -->
+                <div class="group cursor-pointer" @click="currentView = 'feedconnect'">
+                    <div class="bg-gradient-to-br from-hope-green/10 to-hope-green/5 p-8 rounded-2xl border border-hope-green/20 hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                        <!-- Rural school children receiving nutritious meals in their classroom -->
+                        <img src="https://pixabay.com/get/g76679494a53a9afe38b2496e91e0acb7663b78514b4bfc062379cf5f9baab05fd007f681be9564364fc705759094cb28cc5bb2b4ef6d3748d0168d60aae6c52d_1280.jpg" alt="Children receiving meals" class="w-full h-48 object-cover rounded-xl mb-6">
+                        <div class="text-4xl text-hope-green mb-4">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">FeedConnect</h3>
+                        <p class="text-gray-600 mb-6">Combat hunger through intelligent food distribution mapping, real-time need reporting, and coordinated meal programs for vulnerable communities.</p>
+                        <div class="flex items-center text-hope-green font-semibold group-hover:translate-x-2 transition-transform">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EmpowerBridge -->
+                <div class="group cursor-pointer" @click="currentView = 'empowerbridge'">
+                    <div class="bg-gradient-to-br from-trust-blue/10 to-trust-blue/5 p-8 rounded-2xl border border-trust-blue/20 hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                        <!-- Community volunteers working together on development projects in rural areas -->
+                        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400" alt="Community volunteers collaborating" class="w-full h-48 object-cover rounded-xl mb-6">
+                        <div class="text-4xl text-trust-blue mb-4">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">EmpowerBridge</h3>
+                        <p class="text-gray-600 mb-6">Connect volunteers, donors, and organizations through smart matchmaking, resource coordination, and collaborative poverty alleviation efforts.</p>
+                        <div class="flex items-center text-trust-blue font-semibold group-hover:translate-x-2 transition-transform">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EduBridge -->
+                <div class="group cursor-pointer" @click="currentView = 'edubridge'">
+                    <div class="bg-gradient-to-br from-optimism-gold/10 to-optimism-gold/5 p-8 rounded-2xl border border-optimism-gold/20 hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                        <!-- Students in a rural classroom with teacher providing education and digital learning resources -->
+                        <img src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400" alt="Rural classroom education" class="w-full h-48 object-cover rounded-xl mb-6">
+                        <div class="text-4xl text-optimism-gold mb-4">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">EduBridge</h3>
+                        <p class="text-gray-600 mb-6">Bridge education gaps through attendance tracking, learning resource distribution, and comprehensive educational outcome monitoring.</p>
+                        <div class="flex items-center text-optimism-gold font-semibold group-hover:translate-x-2 transition-transform">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Statistics -->
+    <section class="py-20 bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Global Impact So Far</h2>
+                <p class="text-xl text-gray-300">Real numbers from our collaborative efforts worldwide</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center" data-mock="true">
+                    <div class="text-4xl md:text-5xl font-bold text-hope-green mb-2">2.4M+</div>
+                    <div class="text-gray-300">Meals Distributed</div>
+                </div>
+                <div class="text-center" data-mock="true">
+                    <div class="text-4xl md:text-5xl font-bold text-trust-blue mb-2">125K+</div>
+                    <div class="text-gray-300">Children Educated</div>
+                </div>
+                <div class="text-center" data-mock="true">
+                    <div class="text-4xl md:text-5xl font-bold text-optimism-gold mb-2">850+</div>
+                    <div class="text-gray-300">Communities Served</div>
+                </div>
+                <div class="text-center" data-mock="true">
+                    <div class="text-4xl md:text-5xl font-bold text-purple-400 mb-2">15K+</div>
+                    <div class="text-gray-300">Active Volunteers</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-20 bg-gradient-to-r from-hope-green to-trust-blue">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Make a Difference?</h2>
+            <p class="text-xl text-white/90 mb-8">Join thousands of changemakers using Sahaay to create lasting impact in their communities</p>
+            <button @click="currentView = 'onboarding'" class="bg-white text-trust-blue px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105">
+                <i class="fas fa-rocket mr-2"></i>
+                Start Your Journey
+            </button>
+        </div>
+    </section>
+</div>
+<!-- @END_COMPONENT: LandingPage -->
+
+<!-- @COMPONENT: OnboardingFlow [role selection, profile setup] -->
+<div x-show="currentView === 'onboarding'" class="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Progress indicator -->
+        <div class="mb-8">
+            <div class="flex items-center justify-center space-x-4 text-sm">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-trust-blue text-white rounded-full flex items-center justify-center font-semibold">1</div>
+                    <span class="ml-2 text-trust-blue font-semibold">Choose Role</span>
+                </div>
+                <div class="w-12 h-0.5 bg-gray-300"></div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold">2</div>
+                    <span class="ml-2 text-gray-600">Setup Profile</span>
+                </div>
+                <div class="w-12 h-0.5 bg-gray-300"></div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold">3</div>
+                    <span class="ml-2 text-gray-600">Get Started</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">How would you like to help?</h1>
+                <p class="text-lg text-gray-600">Choose your role to get started with Sahaay</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- NGO/Organization -->
+                <div class="group cursor-pointer" @click="userRole = 'ngo'; currentView = 'dashboard'">
+                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-hope-green hover:shadow-lg transition-all group-hover:scale-105">
+                        <div class="text-4xl text-hope-green mb-4 text-center">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">NGO/Organization</h3>
+                        <p class="text-gray-600 text-center mb-4">Coordinate resources, manage programs, and track impact in your community.</p>
+                        <div class="text-center">
+                            <span class="text-hope-green font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                                Select Role <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Volunteer -->
+                <div class="group cursor-pointer" @click="userRole = 'volunteer'; currentView = 'dashboard'">
+                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-trust-blue hover:shadow-lg transition-all group-hover:scale-105">
+                        <div class="text-4xl text-trust-blue mb-4 text-center">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Volunteer</h3>
+                        <p class="text-gray-600 text-center mb-4">Contribute your time and skills to help communities in need.</p>
+                        <div class="text-center">
+                            <span class="text-trust-blue font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                                Select Role <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Donor -->
+                <div class="group cursor-pointer" @click="userRole = 'donor'; currentView = 'dashboard'">
+                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-optimism-gold hover:shadow-lg transition-all group-hover:scale-105">
+                        <div class="text-4xl text-optimism-gold mb-4 text-center">
+                            <i class="fas fa-donate"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Donor</h3>
+                        <p class="text-gray-600 text-center mb-4">Fund impactful projects and track how your donations create change.</p>
+                        <div class="text-center">
+                            <span class="text-optimism-gold font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                                Select Role <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Educator -->
+                <div class="group cursor-pointer" @click="userRole = 'educator'; currentView = 'dashboard'">
+                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-purple-500 hover:shadow-lg transition-all group-hover:scale-105">
+                        <div class="text-4xl text-purple-500 mb-4 text-center">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Educator</h3>
+                        <p class="text-gray-600 text-center mb-4">Track student progress, manage resources, and improve educational outcomes.</p>
+                        <div class="text-center">
+                            <span class="text-purple-500 font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                                Select Role <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Community Member -->
+                <div class="group cursor-pointer" @click="userRole = 'community'; currentView = 'dashboard'">
+                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:shadow-lg transition-all group-hover:scale-105">
+                        <div class="text-4xl text-green-500 mb-4 text-center">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Community Member</h3>
+                        <p class="text-gray-600 text-center mb-4">Report local needs, access resources, and stay informed about community programs.</p>
+                        <div class="text-center">
+                            <span class="text-green-500 font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                                Select Role <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Field Worker -->
+                <div class="group cursor-pointer" @click="userRole = 'fieldworker'; currentView = 'dashboard'">
+                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-red-500 hover:shadow-lg transition-all group-hover:scale-105">
+                        <div class="text-4xl text-red-500 mb-4 text-center">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Field Worker</h3>
+                        <p class="text-gray-600 text-center mb-4">Collect ground-level data, assess community needs, and coordinate local efforts.</p>
+                        <div class="text-center">
+                            <span class="text-red-500 font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                                Select Role <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: OnboardingFlow -->
+
+<!-- @COMPONENT: FeedConnectModule [food distribution mapping, meal tracking] -->
+<div x-show="currentView === 'feedconnect'" class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-hope-green to-green-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">FeedConnect</h1>
+                <p class="text-xl md:text-2xl mb-8">Intelligent Food Distribution & Hunger Combat System</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-white text-hope-green px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-map-marked-alt mr-2"></i>Report Food Need
+                    </button>
+                    <button class="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors">
+                        <i class="fas fa-truck mr-2"></i>Coordinate Distribution
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Live Hunger Map</h2>
+                <p class="text-lg text-gray-600">Real-time visualization of food needs and distribution centers</p>
+            </div>
+
+            <!-- Map Container -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                            <span class="text-sm">Critical Need</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-yellow-500 rounded-full"></div>
+                            <span class="text-sm">Moderate Need</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-hope-green rounded-full"></div>
+                            <span class="text-sm">Distribution Center</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+                            <span class="text-sm">Active Program</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mock Interactive Map -->
+                <!-- World map showing food distribution centers and areas of need across different regions -->
+                <div class="relative h-96 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600');" data-mock="true">
+                    <div class="absolute inset-0 bg-blue-50/80"></div>
+                    
+                    <!-- Mock Location Pins -->
+                    <div class="absolute top-1/4 left-1/3 w-4 h-4 bg-red-500 rounded-full animate-pulse cursor-pointer" @click="selectedLocation = 'Delhi'"></div>
+                    <div class="absolute top-1/2 left-1/4 w-4 h-4 bg-yellow-500 rounded-full animate-pulse cursor-pointer" @click="selectedLocation = 'Mumbai'"></div>
+                    <div class="absolute top-1/3 left-1/2 w-4 h-4 bg-hope-green rounded-full cursor-pointer" @click="selectedLocation = 'Bangalore'"></div>
+                    <div class="absolute top-2/3 left-3/4 w-4 h-4 bg-blue-500 rounded-full cursor-pointer" @click="selectedLocation = 'Chennai'"></div>
+                    
+                    <!-- Location Info Panel -->
+                    <div x-show="selectedLocation" class="absolute bottom-4 left-4 bg-white p-4 rounded-lg shadow-lg max-w-sm" data-mock="true">
+                        <h3 class="font-bold text-lg text-gray-900" x-text="selectedLocation + ' - Food Distribution Status'"></h3>
+                        <div class="mt-2 space-y-1 text-sm text-gray-600">
+                            <div>Families in Need: <span class="font-semibold text-red-600">1,247</span></div>
+                            <div>Daily Meals Required: <span class="font-semibold text-orange-600">3,741</span></div>
+                            <div>Active Distribution Centers: <span class="font-semibold text-hope-green">8</span></div>
+                        </div>
+                        <button class="mt-3 text-hope-green hover:text-green-700 font-semibold text-sm">
+                            View Details <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions Grid -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Report Need -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+                    <div class="text-3xl text-red-500 mb-4">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Report Food Shortage</h3>
+                    <p class="text-gray-600 text-sm mb-4">Alert the community about urgent food needs in your area</p>
+                    <button class="text-red-500 font-semibold hover:text-red-700">Report Now →</button>
+                </div>
+
+                <!-- Schedule Distribution -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+                    <div class="text-3xl text-blue-500 mb-4">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Schedule Distribution</h3>
+                    <p class="text-gray-600 text-sm mb-4">Plan and coordinate food distribution events</p>
+                    <button class="text-blue-500 font-semibold hover:text-blue-700">Schedule →</button>
+                </div>
+
+                <!-- Track Meals -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+                    <div class="text-3xl text-hope-green mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Track Meal Programs</h3>
+                    <p class="text-gray-600 text-sm mb-4">Monitor ongoing feeding programs and their impact</p>
+                    <button class="text-hope-green font-semibold hover:text-green-700">View Stats →</button>
+                </div>
+
+                <!-- Resource Hub -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+                    <div class="text-3xl text-optimism-gold mb-4">
+                        <i class="fas fa-warehouse"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Resource Hub</h3>
+                    <p class="text-gray-600 text-sm mb-4">Access food inventory and distribution resources</p>
+                    <button class="text-optimism-gold font-semibold hover:text-yellow-700">Access Hub →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Activities -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Recent FeedConnect Activities</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Activity Feed -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Live Activity Feed</h3>
+                    <div class="space-y-4" data-mock="true">
+                        <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
+                            <div class="w-8 h-8 bg-hope-green rounded-full flex items-center justify-center">
+                                <i class="fas fa-utensils text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">500 meals distributed in Dharavi</p>
+                                <p class="text-xs text-gray-600">2 hours ago</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
+                            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-exclamation text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Urgent: 200 families need food in Bandra</p>
+                                <p class="text-xs text-gray-600">4 hours ago</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-truck text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">New distribution center opened in Andheri</p>
+                                <p class="text-xs text-gray-600">1 day ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impact Statistics -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">This Week's Impact</h3>
+                    <div class="space-y-4" data-mock="true">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Meals Served</span>
+                            <span class="text-lg font-bold text-hope-green">12,547</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Families Helped</span>
+                            <span class="text-lg font-bold text-trust-blue">3,186</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Active Programs</span>
+                            <span class="text-lg font-bold text-optimism-gold">47</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Distribution Centers</span>
+                            <span class="text-lg font-bold text-purple-600">23</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<!-- @END_COMPONENT: FeedConnectModule -->
+
+<!-- @COMPONENT: EmpowerBridgeModule [volunteer matching, partnership coordination] -->
+<div x-show="currentView === 'empowerbridge'" class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-trust-blue to-blue-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">EmpowerBridge</h1>
+                <p class="text-xl md:text-2xl mb-8">Volunteer Matching & Partnership Coordination Platform</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-white text-trust-blue px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-user-plus mr-2"></i>Join as Volunteer
+                    </button>
+                    <button class="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+                        <i class="fas fa-handshake mr-2"></i>Find Partners
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Volunteer Matchmaking -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Smart Volunteer Matching</h2>
+                    <p class="text-lg text-gray-600 mb-6">Our AI-powered system connects volunteers with opportunities that match their skills, interests, and availability.</p>
+                    
+                    <!-- Search Interface -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Find Volunteer Opportunities</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Skills</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-trust-blue text-white text-sm rounded-full cursor-pointer">Teaching</span>
+                                    <span class="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full cursor-pointer">Cooking</span>
+                                    <span class="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full cursor-pointer">Healthcare</span>
+                                    <span class="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full cursor-pointer">Technology</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                <input type="text" placeholder="Enter your city" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-trust-blue focus:border-trust-blue">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+                                <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-trust-blue focus:border-trust-blue">
+                                    <option>Weekends only</option>
+                                    <option>Weekdays</option>
+                                    <option>Flexible</option>
+                                </select>
+                            </div>
+                            <button class="w-full bg-trust-blue text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-search mr-2"></i>Find Matches
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Volunteer network illustration with people connecting and collaborating -->
+                    <img src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" alt="Diverse group of volunteers working together" class="w-full rounded-2xl shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partnership Opportunities -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Partnership Opportunities</h2>
+                <p class="text-lg text-gray-600">Connect with organizations and create powerful collaborations</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Active Partnerships -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200" data-mock="true">
+                    <div class="text-2xl text-hope-green mb-4">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Active Partnerships</h3>
+                    <div class="text-3xl font-bold text-hope-green mb-2">127</div>
+                    <p class="text-green-700 text-sm">Organizations collaborating</p>
+                </div>
+
+                <!-- Pending Matches -->
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200" data-mock="true">
+                    <div class="text-2xl text-optimism-gold mb-4">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Pending Matches</h3>
+                    <div class="text-3xl font-bold text-optimism-gold mb-2">43</div>
+                    <p class="text-yellow-700 text-sm">Awaiting connection</p>
+                </div>
+
+                <!-- Success Rate -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200" data-mock="true">
+                    <div class="text-2xl text-trust-blue mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Success Rate</h3>
+                    <div class="text-3xl font-bold text-trust-blue mb-2">89%</div>
+                    <p class="text-blue-700 text-sm">Successful partnerships</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Opportunities -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Featured Opportunities</h2>
+            
+            <div class="space-y-6" data-mock="true">
+                <!-- Opportunity 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 bg-hope-green text-white text-xs rounded-full">URGENT</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full ml-2">Education</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Math Tutors Needed for Rural Schools</h3>
+                            <p class="text-gray-600 mb-3">We need 15 volunteer math tutors to support students in rural Maharashtra schools. Flexible timing, basic teaching skills required.</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-map-marker-alt mr-1"></i>Maharashtra, India</span>
+                                <span><i class="fas fa-users mr-1"></i>15 volunteers needed</span>
+                                <span><i class="fas fa-calendar mr-1"></i>3 months commitment</span>
+                            </div>
+                        </div>
+                        <button class="bg-trust-blue text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            Apply Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Opportunity 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 bg-optimism-gold text-white text-xs rounded-full">PARTNERSHIP</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full ml-2">Nutrition</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Corporate Food Drive Partnership</h3>
+                            <p class="text-gray-600 mb-3">Technology company seeking NGO partners for quarterly food drive initiatives. 10,000+ meals per quarter potential.</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-building mr-1"></i>Corporate Partner</span>
+                                <span><i class="fas fa-donate mr-1"></i>$50,000 budget</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Long-term partnership</span>
+                            </div>
+                        </div>
+                        <button class="bg-optimism-gold text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-colors">
+                            Partner Up
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Opportunity 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 bg-purple-500 text-white text-xs rounded-full">SKILL-BASED</span>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full ml-2">Technology</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Web Development for NGO Websites</h3>
+                            <p class="text-gray-600 mb-3">Help 5 small NGOs modernize their websites and improve their digital presence. Remote work possible, 2-3 hours per week.</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-laptop mr-1"></i>Remote work</span>
+                                <span><i class="fas fa-code mr-1"></i>Web development</span>
+                                <span><i class="fas fa-clock mr-1"></i>Flexible timing</span>
+                            </div>
+                        </div>
+                        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                            Contribute
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<!-- @END_COMPONENT: EmpowerBridgeModule -->
+
+<!-- @COMPONENT: EduBridgeModule [education tracking, resource management] -->
+<div x-show="currentView === 'edubridge'" class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-optimism-gold to-yellow-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">EduBridge</h1>
+                <p class="text-xl md:text-2xl mb-8">Educational Resource Management & Progress Tracking</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-white text-optimism-gold px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-school mr-2"></i>Track School Progress
+                    </button>
+                    <button class="bg-yellow-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-yellow-800 transition-colors">
+                        <i class="fas fa-book mr-2"></i>Access Resources
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- School Dashboard Overview -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">School Performance Dashboard</h2>
+                <p class="text-lg text-gray-600">Comprehensive tracking of educational outcomes and resource distribution</p>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12" data-mock="true">
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-optimism-gold mb-2">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900">12,847</div>
+                    <div class="text-sm text-gray-600">Students Enrolled</div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-hope-green mb-2">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900">89.2%</div>
+                    <div class="text-sm text-gray-600">Attendance Rate</div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-trust-blue mb-2">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900">247</div>
+                    <div class="text-sm text-gray-600">Partner Schools</div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-purple-600 mb-2">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900">98,534</div>
+                    <div class="text-sm text-gray-600">Meals Served</div>
+                </div>
+            </div>
+
+            <!-- Detailed Analytics -->
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Attendance Tracking -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Attendance Analytics</h3>
+                    <!-- Mock chart area -->
+                    <div class="h-64 bg-gradient-to-br from-blue-50 to-green-50 rounded-lg flex items-center justify-center mb-4">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-4xl text-trust-blue mb-4"></i>
+                            <p class="text-gray-600">Weekly attendance trends</p>
+                            <p class="text-sm text-gray-500">Interactive chart showing attendance patterns</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center" data-mock="true">
+                        <div>
+                            <div class="text-lg font-bold text-hope-green">92%</div>
+                            <div class="text-xs text-gray-600">This Week</div>
+                        </div>
+                        <div>
+                            <div class="text-lg font-bold text-optimism-gold">87%</div>
+                            <div class="text-xs text-gray-600">Last Week</div>
+                        </div>
+                        <div>
+                            <div class="text-lg font-bold text-trust-blue">89%</div>
+                            <div class="text-xs text-gray-600">Average</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Outcomes -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Learning Outcomes</h3>
+                    <!-- Mock chart area -->
+                    <div class="h-64 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg flex items-center justify-center mb-4">
+                        <div class="text-center">
+                            <i class="fas fa-graduation-cap text-4xl text-purple-600 mb-4"></i>
+                            <p class="text-gray-600">Subject-wise performance</p>
+                            <p class="text-sm text-gray-500">Track student progress across subjects</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3" data-mock="true">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Mathematics</span>
+                            <div class="flex-1 mx-3 bg-gray-200 rounded-full h-2">
+                                <div class="bg-hope-green h-2 rounded-full" style="width: 78%"></div>
+                            </div>
+                            <span class="text-sm font-semibold">78%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Language</span>
+                            <div class="flex-1 mx-3 bg-gray-200 rounded-full h-2">
+                                <div class="bg-trust-blue h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                            <span class="text-sm font-semibold">85%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Science</span>
+                            <div class="flex-1 mx-3 bg-gray-200 rounded-full h-2">
+                                <div class="bg-optimism-gold h-2 rounded-full" style="width: 72%"></div>
+                            </div>
+                            <span class="text-sm font-semibold">72%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resource Management -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Educational Resources</h2>
+                <p class="text-lg text-gray-600">Manage and distribute learning materials effectively</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Digital Library -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 cursor-pointer hover:shadow-lg transition-shadow">
+                    <!-- Students using tablets and digital learning resources in classroom -->
+                    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300" alt="Students using digital learning devices" class="w-full h-32 object-cover rounded-lg mb-4">
+                    <div class="text-3xl text-trust-blue mb-4">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Digital Library</h3>
+                    <p class="text-gray-600 text-sm mb-4">Access thousands of educational resources, e-books, and multimedia content</p>
+                    <div class="text-trust-blue font-semibold">5,247 Resources Available</div>
+                </div>
+
+                <!-- Learning Kits -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 cursor-pointer hover:shadow-lg transition-shadow">
+                    <!-- Educational supplies and learning materials distributed to children -->
+                    <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300" alt="Educational supplies and learning kits" class="w-full h-32 object-cover rounded-lg mb-4">
+                    <div class="text-3xl text-hope-green mb-4">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Learning Kits</h3>
+                    <p class="text-gray-600 text-sm mb-4">Physical learning materials and supplies distributed to schools and students</p>
+                    <div class="text-hope-green font-semibold">1,847 Kits Distributed</div>
+                </div>
+
+                <!-- Teacher Training -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 cursor-pointer hover:shadow-lg transition-shadow">
+                    <!-- Teachers attending training workshop in rural setting -->
+                    <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300" alt="Teachers in professional development workshop" class="w-full h-32 object-cover rounded-lg mb-4">
+                    <div class="text-3xl text-purple-600 mb-4">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Teacher Training</h3>
+                    <p class="text-gray-600 text-sm mb-4">Professional development programs and training modules for educators</p>
+                    <div class="text-purple-600 font-semibold">342 Teachers Trained</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- School Meal Tracking -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Mid-Day Meal Program Tracking</h2>
+                        <p class="text-gray-600">Monitor nutrition programs and meal distribution across schools</p>
+                    </div>
+                    <button class="bg-optimism-gold text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Add Meal Record
+                    </button>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-mock="true">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-hope-green">8,456</div>
+                        <div class="text-sm text-gray-600">Meals Today</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-trust-blue">94.2%</div>
+                        <div class="text-sm text-gray-600">Coverage Rate</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-optimism-gold">₹125</div>
+                        <div class="text-sm text-gray-600">Cost per Meal</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-600">247</div>
+                        <div class="text-sm text-gray-600">Active Schools</div>
+                    </div>
+                </div>
+
+                <!-- Recent Meal Records -->
+                <div class="overflow-x-auto">
+                    <table class="w-full" data-mock="true">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-900">School</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-900">Date</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-900">Meals Served</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-900">Attendance</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr>
+                                <td class="py-3 px-4">Sunrise Primary School</td>
+                                <td class="py-3 px-4">Today</td>
+                                <td class="py-3 px-4">342</td>
+                                <td class="py-3 px-4">356 (96%)</td>
+                                <td class="py-3 px-4"><span class="px-2 py-1 bg-hope-green text-white text-xs rounded-full">Complete</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4">Valley Elementary</td>
+                                <td class="py-3 px-4">Today</td>
+                                <td class="py-3 px-4">198</td>
+                                <td class="py-3 px-4">205 (97%)</td>
+                                <td class="py-3 px-4"><span class="px-2 py-1 bg-hope-green text-white text-xs rounded-full">Complete</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4">Hillside School</td>
+                                <td class="py-3 px-4">Today</td>
+                                <td class="py-3 px-4">78</td>
+                                <td class="py-3 px-4">89 (88%)</td>
+                                <td class="py-3 px-4"><span class="px-2 py-1 bg-optimism-gold text-white text-xs rounded-full">Partial</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<!-- @END_COMPONENT: EduBridgeModule -->
+
+<!-- @COMPONENT: ImpactDashboard [visual metrics, transparency reports] -->
+<div x-show="currentView === 'impact'" class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Impact Dashboard</h1>
+                <p class="text-xl md:text-2xl mb-8">Transparent Reporting & Real-Time Impact Visualization</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Download Report
+                    </button>
+                    <button class="bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-800 transition-colors">
+                        <i class="fas fa-share mr-2"></i>Share Impact
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Impact Overview -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Global Impact Overview</h2>
+                <p class="text-lg text-gray-600">Real-time data showing the collective impact of all Sahaay initiatives</p>
+            </div>
+
+            <!-- Key Impact Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12" data-mock="true">
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div class="text-4xl text-hope-green mb-4">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2">2,847,392</div>
+                    <div class="text-gray-600 mb-3">Meals Distributed</div>
+                    <div class="text-sm text-hope-green font-semibold">↑ 12% this month</div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div class="text-4xl text-trust-blue mb-4">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2">156,743</div>
+                    <div class="text-gray-600 mb-3">Students Educated</div>
+                    <div class="text-sm text-trust-blue font-semibold">↑ 8% this month</div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div class="text-4xl text-optimism-gold mb-4">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2">47,289</div>
+                    <div class="text-gray-600 mb-3">Families Supported</div>
+                    <div class="text-sm text-optimism-gold font-semibold">↑ 15% this month</div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div class="text-4xl text-purple-600 mb-4">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2">23,847</div>
+                    <div class="text-gray-600 mb-3">Active Volunteers</div>
+                    <div class="text-sm text-purple-600 font-semibold">↑ 22% this month</div>
+                </div>
+            </div>
+
+            <!-- Impact Visualization Charts -->
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Geographical Impact -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Geographical Impact Distribution</h3>
+                    <!-- Mock world map visualization -->
+                    <div class="h-64 bg-gradient-to-br from-blue-50 to-green-50 rounded-lg flex items-center justify-center">
+                        <!-- World map showing impact distribution across continents -->
+                        <div class="text-center">
+                            <i class="fas fa-globe text-6xl text-trust-blue mb-4 opacity-60"></i>
+                            <p class="text-gray-600 font-semibold">Interactive Impact Map</p>
+                            <p class="text-sm text-gray-500">Click regions to view detailed metrics</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-4 text-sm" data-mock="true">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Asia-Pacific</span>
+                            <span class="font-semibold text-hope-green">68%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Africa</span>
+                            <span class="font-semibold text-trust-blue">18%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Latin America</span>
+                            <span class="font-semibold text-optimism-gold">10%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Others</span>
+                            <span class="font-semibold text-purple-600">4%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Trends -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Monthly Impact Trends</h3>
+                    <!-- Mock trend chart -->
+                    <div class="h-64 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-6xl text-purple-600 mb-4 opacity-60"></i>
+                            <p class="text-gray-600 font-semibold">Growth Trend Analysis</p>
+                            <p class="text-sm text-gray-500">12-month impact progression</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between text-sm" data-mock="true">
+                        <div class="text-center">
+                            <div class="font-bold text-hope-green">+24%</div>
+                            <div class="text-gray-600">Food Programs</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold text-trust-blue">+18%</div>
+                            <div class="text-gray-600">Education</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold text-optimism-gold">+31%</div>
+                            <div class="text-gray-600">Partnerships</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Program-Specific Impact -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Program-Specific Impact Breakdown</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- FeedConnect Impact -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200">
+                    <div class="flex items-center mb-4">
+                        <div class="text-2xl text-hope-green mr-3">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900">FeedConnect Impact</h3>
+                    </div>
+                    
+                    <div class="space-y-4" data-mock="true">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Daily Meals</span>
+                            <span class="font-bold text-hope-green">47,832</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Active Centers</span>
+                            <span class="font-bold text-hope-green">342</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Coverage Areas</span>
+                            <span class="font-bold text-hope-green">1,247</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Cost Efficiency</span>
+                            <span class="font-bold text-hope-green">₹38/meal</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Children enjoying nutritious meals in community center -->
+                    <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Children enjoying nutritious community meals" class="w-full h-32 object-cover rounded-lg mt-4">
+                </div>
+
+                <!-- EmpowerBridge Impact -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
+                    <div class="flex items-center mb-4">
+                        <div class="text-2xl text-trust-blue mr-3">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900">EmpowerBridge Impact</h3>
+                    </div>
+                    
+                    <div class="space-y-4" data-mock="true">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Volunteer Matches</span>
+                            <span class="font-bold text-trust-blue">12,847</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Active Partnerships</span>
+                            <span class="font-bold text-trust-blue">689</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Volunteer Hours</span>
+                            <span class="font-bold text-trust-blue">247K</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Success Rate</span>
+                            <span class="font-bold text-trust-blue">89.2%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Volunteers working together on community development project -->
+                    <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Volunteers collaborating on community projects" class="w-full h-32 object-cover rounded-lg mt-4">
+                </div>
+
+                <!-- EduBridge Impact -->
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200">
+                    <div class="flex items-center mb-4">
+                        <div class="text-2xl text-optimism-gold mr-3">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900">EduBridge Impact</h3>
+                    </div>
+                    
+                    <div class="space-y-4" data-mock="true">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Students Enrolled</span>
+                            <span class="font-bold text-optimism-gold">156,743</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Learning Resources</span>
+                            <span class="font-bold text-optimism-gold">89,432</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Teacher Training</span>
+                            <span class="font-bold text-optimism-gold">3,247</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Completion Rate</span>
+                            <span class="font-bold text-optimism-gold">94.7%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Students in classroom with teacher showing improved learning outcomes -->
+                    <img src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Students engaged in classroom learning" class="w-full h-32 object-cover rounded-lg mt-4">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transparency Reports -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Transparency & Accountability</h2>
+                        <p class="text-gray-600">Detailed financial and operational reporting</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-file-pdf mr-2"></i>Annual Report
+                        </button>
+                        <button class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-chart-bar mr-2"></i>Financial Statement
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6" data-mock="true">
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-gray-900">₹24.7M</div>
+                        <div class="text-sm text-gray-600">Total Funds Raised</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-hope-green">89.4%</div>
+                        <div class="text-sm text-gray-600">Program Efficiency</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-trust-blue">₹8.2</div>
+                        <div class="text-sm text-gray-600">Cost per Beneficiary</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-optimism-gold">97.8%</div>
+                        <div class="text-sm text-gray-600">Transparency Score</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<!-- @END_COMPONENT: ImpactDashboard -->
+
+<!-- @COMPONENT: RoleDashboards [personalized interfaces for different user roles] -->
+<div x-show="currentView === 'dashboard'" class="min-h-screen bg-gray-50">
+    <!-- NGO Dashboard -->
+    <div x-show="userRole === 'ngo'">
+        <div class="bg-hope-green text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold">NGO Dashboard</h1>
+                        <p class="text-green-100 mt-2">Manage your organization's impact programs</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold" data-mock="true">Hope Foundation</div>
+                        <div class="text-green-100" data-mock="true">Since 2018 • 15,247 Lives Impacted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Quick Actions -->
+            <div class="grid md:grid-cols-4 gap-4 mb-8">
+                <button class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left">
+                    <i class="fas fa-plus-circle text-2xl text-hope-green mb-2"></i>
+                    <div class="font-semibold">Create Program</div>
+                    <div class="text-sm text-gray-600">Launch new initiative</div>
+                </button>
+                <button class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left">
+                    <i class="fas fa-users text-2xl text-trust-blue mb-2"></i>
+                    <div class="font-semibold">Manage Volunteers</div>
+                    <div class="text-sm text-gray-600">Coordinate team</div>
+                </button>
+                <button class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left">
+                    <i class="fas fa-chart-line text-2xl text-optimism-gold mb-2"></i>
+                    <div class="font-semibold">View Analytics</div>
+                    <div class="text-sm text-gray-600">Track progress</div>
+                </button>
+                <button class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left">
+                    <i class="fas fa-donate text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold">Funding Status</div>
+                    <div class="text-sm text-gray-600">Monitor resources</div>
+                </button>
+            </div>
+
+            <!-- Active Programs -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Active Programs</h2>
+                <div class="grid md:grid-cols-3 gap-6" data-mock="true">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">Rural Education Initiative</h3>
+                        <div class="text-sm text-gray-600 mb-3">647 students • 12 schools</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-hope-green h-2 rounded-full" style="width: 78%"></div>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-1">78% Complete</div>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">Community Feeding Program</h3>
+                        <div class="text-sm text-gray-600 mb-3">2,847 meals/week • 8 centers</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-trust-blue h-2 rounded-full" style="width: 92%"></div>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-1">92% Complete</div>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">Skills Development</h3>
+                        <div class="text-sm text-gray-600 mb-3">342 participants • 5 courses</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-optimism-gold h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-1">65% Complete</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity & Analytics -->
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Recent Activity</h3>
+                    <div class="space-y-3" data-mock="true">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-hope-green rounded-full mt-2"></div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium">New volunteer joined Rural Education</div>
+                                <div class="text-xs text-gray-500">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-trust-blue rounded-full mt-2"></div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium">Meal distribution completed in Sector 7</div>
+                                <div class="text-xs text-gray-500">5 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-optimism-gold rounded-full mt-2"></div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium">Monthly report generated</div>
+                                <div class="text-xs text-gray-500">1 day ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Key Metrics</h3>
+                    <div class="grid grid-cols-2 gap-4" data-mock="true">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-hope-green">2,847</div>
+                            <div class="text-sm text-gray-600">Beneficiaries</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-trust-blue">89%</div>
+                            <div class="text-sm text-gray-600">Program Success</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-optimism-gold">47</div>
+                            <div class="text-sm text-gray-600">Active Volunteers</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600">₹12.4L</div>
+                            <div class="text-sm text-gray-600">Funds Utilized</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Volunteer Dashboard -->
+    <div x-show="userRole === 'volunteer'">
+        <div class="bg-trust-blue text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold">Volunteer Dashboard</h1>
+                        <p class="text-blue-100 mt-2">Track your volunteer journey and impact</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold" data-mock="true">Sarah Johnson</div>
+                        <div class="text-blue-100" data-mock="true">Volunteer since Jan 2023 • 247 hours contributed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Volunteer Stats -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8" data-mock="true">
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-trust-blue mb-2"><i class="fas fa-clock"></i></div>
+                    <div class="text-2xl font-bold text-gray-900">247</div>
+                    <div class="text-sm text-gray-600">Hours Volunteered</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-hope-green mb-2"><i class="fas fa-heart"></i></div>
+                    <div class="text-2xl font-bold text-gray-900">1,847</div>
+                    <div class="text-sm text-gray-600">Lives Impacted</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-optimism-gold mb-2"><i class="fas fa-trophy"></i></div>
+                    <div class="text-2xl font-bold text-gray-900">12</div>
+                    <div class="text-sm text-gray-600">Programs Completed</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-3xl text-purple-600 mb-2"><i class="fas fa-star"></i></div>
+                    <div class="text-2xl font-bold text-gray-900">4.9</div>
+                    <div class="text-sm text-gray-600">Impact Rating</div>
+                </div>
+            </div>
+
+            <!-- Active Assignments & Available Opportunities -->
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Active Assignments -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-900">Active Assignments</h2>
+                        <button class="text-trust-blue hover:text-blue-700 text-sm font-semibold">View All</button>
+                    </div>
+                    <div class="space-y-4" data-mock="true">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-900 mb-2">Teaching Assistant - Sunrise School</h3>
+                            <div class="text-sm text-gray-600 mb-2">Mathematics • Grade 5 • 2 hours/week</div>
+                            <div class="flex items-center space-x-2 text-xs">
+                                <span class="px-2 py-1 bg-hope-green text-white rounded-full">In Progress</span>
+                                <span class="text-gray-500">Next session: Tomorrow 10 AM</span>
+                            </div>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-900 mb-2">Meal Distribution Volunteer</h3>
+                            <div class="text-sm text-gray-600 mb-2">Community Center B • Weekend shifts</div>
+                            <div class="flex items-center space-x-2 text-xs">
+                                <span class="px-2 py-1 bg-trust-blue text-white rounded-full">Scheduled</span>
+                                <span class="text-gray-500">Next shift: Saturday 9 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Opportunities -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-900">Recommended for You</h2>
+                        <button class="text-trust-blue hover:text-blue-700 text-sm font-semibold">Browse All</button>
+                    </div>
+                    <div class="space-y-4" data-mock="true">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-trust-blue cursor-pointer">
+                            <h3 class="font-semibold text-gray-900 mb-2">Digital Literacy Trainer</h3>
+                            <div class="text-sm text-gray-600 mb-2">Adult Education Center • 3 hours/week</div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-hope-green">95% match</span>
+                                <button class="text-trust-blue hover:text-blue-700 text-sm font-semibold">Apply</button>
+                            </div>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-trust-blue cursor-pointer">
+                            <h3 class="font-semibold text-gray-900 mb-2">Community Garden Helper</h3>
+                            <div class="text-sm text-gray-600 mb-2">Urban Farming Initiative • Flexible schedule</div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-optimism-gold">87% match</span>
+                                <button class="text-trust-blue hover:text-blue-700 text-sm font-semibold">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Dashboard for Other Roles -->
+    <div x-show="userRole && !['ngo', 'volunteer'].includes(userRole)">
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold capitalize" x-text="userRole + ' Dashboard'"></h1>
+                    <p class="text-purple-100 mt-2">Welcome to your personalized Sahaay experience</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div class="text-4xl text-purple-600 mb-4">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Dashboard Coming Soon</h2>
+                <p class="text-lg text-gray-600 mb-6">We're building a personalized experience for your role. Stay tuned!</p>
+                <button @click="currentView = 'landing'" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                    Return to Home
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: RoleDashboards -->
+
+<!-- @COMPONENT: LearningHub [educational content, multi-language resources] -->
+<section x-show="currentView === 'learning'" class="min-h-screen bg-gray-50">
+    <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Learning & Awareness Hub</h1>
+            <p class="text-xl md:text-2xl">Educational content for community empowerment</p>
+        </div>
+    </div>
+    
+    <!-- Learning modules grid would go here -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Education modules for nutrition, hygiene, digital skills, etc. -->
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">Nutrition Education</h3>
+                <p class="text-gray-600">Learn about proper nutrition and healthy eating habits</p>
+            </div>
+            <!-- More learning modules... -->
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: LearningHub -->
+
+<script>
+    // TODO: Implement business logic, API calls, and state management
+    // Basic interactivity for mockup demonstration
+    (function() {
+        // Simulated data for demonstrations
+        const mockData = {
+            // Mock implementation would go here
+        };
+        
+        // TODO: Add real functionality for:
+        // - User authentication and role management
+        // - Real-time data updates
+        // - Form submissions and validations
+        // - API integrations for mapping and data
+        // - Offline capability
+        // - Multi-language support
+        // - Accessibility features
+    })();
+</script>
+
+</body>
+</html>
