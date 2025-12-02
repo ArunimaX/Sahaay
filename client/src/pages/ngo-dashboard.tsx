@@ -9,12 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAppStore } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Building2, 
-  Phone, 
-  MapPin, 
-  CreditCard, 
-  CheckCircle, 
+import {
+  Building2,
+  Phone,
+  MapPin,
+  CreditCard,
+  CheckCircle,
   X,
   Camera,
   Upload,
@@ -61,7 +61,7 @@ export default function NgoDashboard() {
   const { user } = useAppStore();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [ngoInfo, setNgoInfo] = useState<NgoInfo>({
     name: "",
@@ -90,17 +90,17 @@ export default function NgoDashboard() {
       setLocation("/dashboard");
       return;
     }
-    
+
     // Check if NGO info is already submitted
     checkNgoInfoStatus();
   }, [user, setLocation]);
 
   const checkNgoInfoStatus = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/ngo/info/${user?.id}`, {
+      const response = await fetch(`http://localhost:5001/api/ngo/info/${user?.id}`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -124,7 +124,7 @@ export default function NgoDashboard() {
       });
       return false;
     }
-    
+
     if (!ngoInfo.phone || ngoInfo.phone.length !== 10 || !/^\d+$/.test(ngoInfo.phone)) {
       toast({
         title: "Validation Error",
@@ -133,7 +133,7 @@ export default function NgoDashboard() {
       });
       return false;
     }
-    
+
     if (!ngoInfo.address.trim()) {
       toast({
         title: "Validation Error",
@@ -142,7 +142,7 @@ export default function NgoDashboard() {
       });
       return false;
     }
-    
+
     if (!ngoInfo.panId.trim() || ngoInfo.panId.length < 10) {
       toast({
         title: "Validation Error",
@@ -151,17 +151,17 @@ export default function NgoDashboard() {
       });
       return false;
     }
-    
+
     return true;
   };
 
   const handleNgoInfoSubmit = async () => {
     if (!validateNgoInfo()) return;
-    
+
     try {
       console.log('Submitting NGO info:', { userId: user?.id, ...ngoInfo });
-      
-      const response = await fetch('http://localhost:5000/api/ngo/info', {
+
+      const response = await fetch('http://localhost:5001/api/ngo/info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,10 +172,10 @@ export default function NgoDashboard() {
           ...ngoInfo
         }),
       });
-      
+
       const data = await response.json();
       console.log('NGO info response:', data);
-      
+
       if (response.ok && data.success) {
         setNgoInfoSubmitted(true);
         setCurrentStep(2);
@@ -200,10 +200,10 @@ export default function NgoDashboard() {
   const loadNextDonorRequest = async () => {
     setIsLoadingRequest(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/ngo/donor-requests/next?ngoUserId=${user?.id}`, {
+      const response = await fetch(`http://localhost:5001/api/ngo/donor-requests/next?ngoUserId=${user?.id}`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -226,9 +226,9 @@ export default function NgoDashboard() {
 
   const handleRejectRequest = async () => {
     if (!currentDonorRequest) return;
-    
+
     try {
-      const response = await fetch('http://localhost:5000/api/ngo/donor-requests/reject', {
+      const response = await fetch('http://localhost:5001/api/ngo/donor-requests/reject', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -239,7 +239,7 @@ export default function NgoDashboard() {
           ngoUserId: user?.id
         }),
       });
-      
+
       if (response.ok) {
         toast({
           title: "Request Rejected",
@@ -266,7 +266,7 @@ export default function NgoDashboard() {
         reject(new Error('Geolocation is not supported'));
         return;
       }
-      
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           resolve({
@@ -283,13 +283,13 @@ export default function NgoDashboard() {
   const handleImageUpload = async (type: 'before' | 'after', file: File) => {
     try {
       const location = await getCurrentLocation();
-      
+
       setDeliveryProof(prev => ({
         ...prev,
         [type === 'before' ? 'beforeImage' : 'afterImage']: file,
         [type === 'before' ? 'beforeLocation' : 'afterLocation']: location
       }));
-      
+
       toast({
         title: "Image Uploaded",
         description: `${type === 'before' ? 'Before' : 'After'} delivery image uploaded with location`,
@@ -312,9 +312,9 @@ export default function NgoDashboard() {
       });
       return;
     }
-    
+
     setIsSubmittingProof(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('donationId', currentDonorRequest?.id || '');
@@ -325,19 +325,19 @@ export default function NgoDashboard() {
       formData.append('beforeLng', deliveryProof.beforeLocation?.lng.toString() || '');
       formData.append('afterLat', deliveryProof.afterLocation?.lat.toString() || '');
       formData.append('afterLng', deliveryProof.afterLocation?.lng.toString() || '');
-      
-      const response = await fetch('http://localhost:5000/api/ngo/delivery-proof', {
+
+      const response = await fetch('http://localhost:5001/api/ngo/delivery-proof', {
         method: 'POST',
         credentials: 'include',
         body: formData,
       });
-      
+
       if (response.ok) {
         toast({
           title: "Success",
           description: "Delivery proof submitted successfully!",
         });
-        
+
         // Reset delivery form
         setDeliveryProof({
           beforeImage: null,
@@ -346,7 +346,7 @@ export default function NgoDashboard() {
           afterLocation: null
         });
         setShowDeliveryForm(false);
-        
+
         // Load next request
         loadNextDonorRequest();
       } else {
@@ -392,9 +392,9 @@ export default function NgoDashboard() {
             <div className="text-right">
               <div className="text-xl font-bold">{user.name}</div>
               <div className="text-blue-100">NGO Representative</div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleLogout}
                 className="mt-2 text-blue-600 border-blue-200 hover:bg-blue-50"
               >
@@ -495,7 +495,7 @@ export default function NgoDashboard() {
               </div>
 
               <div className="flex justify-end">
-                <Button 
+                <Button
                   onClick={handleNgoInfoSubmit}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
@@ -591,14 +591,14 @@ export default function NgoDashboard() {
                       <span className="text-2xl font-bold text-blue-600">{currentDonorRequest.totalQuantity} KG</span>
                     </div>
                     <p className="text-sm text-blue-700 mt-1">
-                      Estimated meals: {Math.floor(currentDonorRequest.totalQuantity * 2)}+ | 
+                      Estimated meals: {Math.floor(currentDonorRequest.totalQuantity * 2)}+ |
                       Families helped: {Math.floor(currentDonorRequest.totalQuantity / 2)}+
                     </p>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-                    <Button 
+                    <Button
                       onClick={handleRejectRequest}
                       variant="outline"
                       className="border-red-300 text-red-600 hover:bg-red-50"
@@ -606,8 +606,8 @@ export default function NgoDashboard() {
                       <X className="h-4 w-4 mr-2" />
                       Reject Request
                     </Button>
-                    
-                    <Button 
+
+                    <Button
                       onClick={handleAcceptRequest}
                       className="bg-green-600 hover:bg-green-700"
                     >
@@ -730,14 +730,14 @@ export default function NgoDashboard() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-between pt-6">
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => setShowDeliveryForm(false)}
                 >
                   Cancel
                 </Button>
-                
-                <Button 
+
+                <Button
                   onClick={handleSubmitDeliveryProof}
                   disabled={!deliveryProof.beforeImage || !deliveryProof.afterImage || isSubmittingProof}
                   className="bg-green-600 hover:bg-green-700"

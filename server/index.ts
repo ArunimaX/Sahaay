@@ -8,7 +8,7 @@ import routes from './routes';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(express.json());
@@ -20,7 +20,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
   } else {
@@ -65,12 +65,12 @@ async function initializeServices() {
       const { ProfileService } = await import('./services/profile-service');
       const { NgoService } = await import('./services/ngo-service');
       const { ServiceProviderService } = await import('./services/service-provider-service');
-      
+
       await AuthService.initializeDatabase();
       await ProfileService.initializeTable();
       await NgoService.initializeService();
       await ServiceProviderService.initializeService();
-      
+
       console.log('✅ Database services initialized');
     }
   } catch (error) {
@@ -89,7 +89,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`🎯 Frontend: http://localhost:5173 (run 'npm run dev:client' in another terminal)`);
     console.log(`💡 Test Routes: http://localhost:${PORT}/api/test/* (working without database)`);
     console.log(`🏢 NGO Routes: http://localhost:${PORT}/api/ngo/* (requires database)`);
-    
+
     // Initialize services
     await initializeServices();
   });

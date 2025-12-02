@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAppStore } from "@/lib/store";
-import { 
-  Users, 
+import {
+  Users,
   Package,
   TrendingUp,
   Activity,
@@ -21,6 +21,21 @@ import {
   RefreshCw
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import {
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  LineChart,
+  Line
+} from "recharts";
 
 interface DashboardAnalytics {
   overview: {
@@ -119,7 +134,7 @@ export default function AdminAnalyticsDashboard() {
     queryKey: ["dashboardAnalytics"],
     queryFn: async () => {
       console.log("📊 Fetching dashboard analytics...");
-      const res = await fetch("http://localhost:5000/api/analytics/dashboard");
+      const res = await fetch("http://localhost:5001/api/analytics/dashboard");
       if (!res.ok) {
         const errorText = await res.text();
         console.error("❌ Analytics API error:", res.status, errorText);
@@ -177,7 +192,7 @@ export default function AdminAnalyticsDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -200,21 +215,21 @@ export default function AdminAnalyticsDashboard() {
         {/* Controls */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-4">
-            <Button 
-              onClick={handleRefresh} 
+            <Button
+              onClick={handleRefresh}
               disabled={refreshing || isLoading}
               className="bg-blue-600 hover:bg-blue-700"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh Data'}
             </Button>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Last updated: {new Date().toLocaleTimeString()}
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-500' : 'bg-green-500'}`}></div>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               {error ? 'Connection Error' : 'Live Data'}
             </span>
           </div>
@@ -254,32 +269,32 @@ export default function AdminAnalyticsDashboard() {
               <Card className="shadow-lg">
                 <CardContent className="p-6 text-center">
                   <Users className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">{analytics.overview.totalUsers}</div>
-                  <div className="text-sm text-gray-600">Total Users</div>
+                  <div className="text-2xl font-bold text-foreground">{analytics.overview.totalUsers}</div>
+                  <div className="text-sm text-muted-foreground">Total Users</div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-lg">
                 <CardContent className="p-6 text-center">
                   <Package className="h-8 w-8 mx-auto text-green-600 mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">{analytics.overview.totalFoodDonations}</div>
-                  <div className="text-sm text-gray-600">Food Donations</div>
+                  <div className="text-2xl font-bold text-foreground">{analytics.overview.totalFoodDonations}</div>
+                  <div className="text-sm text-muted-foreground">Food Donations</div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-lg">
                 <CardContent className="p-6 text-center">
                   <TrendingUp className="h-8 w-8 mx-auto text-orange-600 mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">{analytics.overview.totalFoodQuantity} KG</div>
-                  <div className="text-sm text-gray-600">Food Quantity</div>
+                  <div className="text-2xl font-bold text-foreground">{analytics.overview.totalFoodQuantity} KG</div>
+                  <div className="text-sm text-muted-foreground">Food Quantity</div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-lg">
                 <CardContent className="p-6 text-center">
                   <Activity className="h-8 w-8 mx-auto text-purple-600 mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">{analytics.overview.totalWorkRequests}</div>
-                  <div className="text-sm text-gray-600">Work Requests</div>
+                  <div className="text-2xl font-bold text-foreground">{analytics.overview.totalWorkRequests}</div>
+                  <div className="text-sm text-muted-foreground">Work Requests</div>
                 </CardContent>
               </Card>
             </div>
@@ -296,23 +311,28 @@ export default function AdminAnalyticsDashboard() {
                     Breakdown of users by their roles in the system
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {analytics.userGrowth.roleDistribution.map((role) => (
-                      <div key={role.role} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <Badge className={getRoleColor(role.role)}>
-                            {role.role}
-                          </Badge>
-                          <span className="text-sm text-gray-600">{role.count} users</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Progress value={role.percentage} className="w-20 h-2" />
-                          <span className="text-sm font-medium">{role.percentage}%</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={analytics.userGrowth.roleDistribution}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="count"
+                        nameKey="role"
+                        label={({ role, percentage }) => `${role} (${percentage}%)`}
+                      >
+                        {analytics.userGrowth.roleDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'][index % 6]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
 
@@ -326,20 +346,18 @@ export default function AdminAnalyticsDashboard() {
                     Distribution of food donations by category
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {analytics.foodDonations.donationsByCategory.map((category) => (
-                      <div key={category.category} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <Badge className={getCategoryColor(category.category)}>
-                            {category.category}
-                          </Badge>
-                          <span className="text-sm text-gray-600">{category.count} donations</span>
-                        </div>
-                        <div className="text-sm font-medium">{category.totalQuantity} KG</div>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analytics.foodDonations.donationsByCategory}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="category" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="count" fill="#8884d8" name="Donations" />
+                      <Bar dataKey="totalQuantity" fill="#82ca9d" name="Quantity (KG)" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>
@@ -377,7 +395,7 @@ export default function AdminAnalyticsDashboard() {
 
                 {/* Storage Requirements */}
                 <div className="mb-6">
-                  <h3 className="font-semibold text-lg text-gray-800 mb-4">Storage Requirements</h3>
+                  <h3 className="font-semibold text-lg text-foreground mb-4">Storage Requirements</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {analytics.foodDonations.donationsByStorageType.map((storage) => (
                       <div key={storage.storageType} className="p-4 border rounded-lg">
@@ -387,7 +405,7 @@ export default function AdminAnalyticsDashboard() {
                           </Badge>
                           <span className="text-sm font-medium">{storage.count} items</span>
                         </div>
-                        <div className="text-lg font-bold text-gray-900">{storage.totalQuantity} KG</div>
+                        <div className="text-lg font-bold text-foreground">{storage.totalQuantity} KG</div>
                       </div>
                     ))}
                   </div>
@@ -396,24 +414,20 @@ export default function AdminAnalyticsDashboard() {
                 {/* Monthly Trends */}
                 {analytics.foodDonations.monthlyTrends.length > 0 && (
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800 mb-4">Monthly Trends</h3>
-                    <div className="space-y-3">
-                      {analytics.foodDonations.monthlyTrends.map((trend) => (
-                        <div key={trend.month} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <Calendar className="h-4 w-4 text-gray-600" />
-                            <span className="font-medium">{trend.month}</span>
-                          </div>
-                          <div className="flex items-center space-x-4">
-                            <div className="text-sm">
-                              <span className="font-medium">{trend.donations}</span> donations
-                            </div>
-                            <div className="text-sm">
-                              <span className="font-medium">{trend.quantity} KG</span> total
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <h3 className="font-semibold text-lg text-foreground mb-4">Monthly Trends</h3>
+                    <div className="h-[300px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={analytics.foodDonations.monthlyTrends}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis yAxisId="left" />
+                          <YAxis yAxisId="right" orientation="right" />
+                          <Tooltip />
+                          <Legend />
+                          <Line yAxisId="left" type="monotone" dataKey="donations" stroke="#8884d8" activeDot={{ r: 8 }} name="Donations" />
+                          <Line yAxisId="right" type="monotone" dataKey="quantity" stroke="#82ca9d" name="Quantity (KG)" />
+                        </LineChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
                 )}
@@ -434,27 +448,27 @@ export default function AdminAnalyticsDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   {analytics.foodDonations.recentDonations.slice(0, 10).map((donation) => (
-                    <div key={donation.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div key={donation.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                             <Package className="h-5 w-5 text-green-600" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-gray-900">{donation.donorName}</h4>
-                            <p className="text-sm text-gray-600">
+                            <h4 className="font-semibold text-foreground">{donation.donorName}</h4>
+                            <p className="text-sm text-muted-foreground">
                               {donation.totalItems} items • {donation.totalQuantity} KG
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <Badge className="bg-green-500 text-white">Received</Badge>
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-muted-foreground mt-1">
                             {new Date(donation.createdAt).toLocaleString()}
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-2">
                         {donation.foodItems.map((item, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
@@ -464,9 +478,9 @@ export default function AdminAnalyticsDashboard() {
                       </div>
                     </div>
                   ))}
-                  
+
                   {analytics.foodDonations.recentDonations.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                       No recent donations found
                     </div>
                   )}
@@ -504,14 +518,14 @@ export default function AdminAnalyticsDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Requests by Urgency */}
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800 mb-4">Requests by Urgency</h3>
+                    <h3 className="font-semibold text-lg text-foreground mb-4">Requests by Urgency</h3>
                     <div className="space-y-3">
                       {analytics.workRequests.requestsByUrgency.map((urgency) => (
-                        <div key={urgency.urgency} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={urgency.urgency} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                           <Badge className={
                             urgency.urgency === 'high' ? 'bg-red-100 text-red-800' :
-                            urgency.urgency === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
+                              urgency.urgency === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-green-100 text-green-800'
                           }>
                             {urgency.urgency.toUpperCase()}
                           </Badge>
@@ -523,10 +537,10 @@ export default function AdminAnalyticsDashboard() {
 
                   {/* Top Service Types */}
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800 mb-4">Top Service Types</h3>
+                    <h3 className="font-semibold text-lg text-foreground mb-4">Top Service Types</h3>
                     <div className="space-y-3">
                       {analytics.workRequests.requestsByServiceType.slice(0, 5).map((service) => (
-                        <div key={service.serviceType} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={service.serviceType} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                           <span className="text-sm font-medium">{service.serviceType}</span>
                           <Badge variant="outline">{service.count} requests</Badge>
                         </div>

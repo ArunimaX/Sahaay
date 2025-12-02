@@ -13,12 +13,12 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   // Add backend base URL for API calls
-  const baseUrl = url.startsWith('/api') ? 'http://localhost:5000' : '';
+  const baseUrl = url.startsWith('/api') ? 'http://localhost:5001' : '';
   const fullUrl = baseUrl + url;
-  
+
   console.log(`🌐 API Request: ${method} ${fullUrl}`);
   console.log(`📦 Request data:`, data);
-  
+
   const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
@@ -27,7 +27,7 @@ export async function apiRequest(
   });
 
   console.log(`📡 Response status: ${res.status} ${res.statusText}`);
-  
+
   await throwIfResNotOk(res);
   return res;
 }
@@ -37,23 +37,23 @@ export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    const url = queryKey.join("/") as string;
-    // Add backend base URL for API calls
-    const baseUrl = url.startsWith('/api') ? 'http://localhost:5000' : '';
-    const fullUrl = baseUrl + url;
-    
-    const res = await fetch(fullUrl, {
-      credentials: "include",
-    });
+    async ({ queryKey }) => {
+      const url = queryKey.join("/") as string;
+      // Add backend base URL for API calls
+      const baseUrl = url.startsWith('/api') ? 'http://localhost:5001' : '';
+      const fullUrl = baseUrl + url;
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
-    }
+      const res = await fetch(fullUrl, {
+        credentials: "include",
+      });
 
-    await throwIfResNotOk(res);
-    return await res.json();
-  };
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      return await res.json();
+    };
 
 export const queryClient = new QueryClient({
   defaultOptions: {

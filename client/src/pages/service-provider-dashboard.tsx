@@ -8,11 +8,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  User, 
-  Phone, 
-  CreditCard, 
-  CheckCircle, 
+import {
+  User,
+  Phone,
+  CreditCard,
+  CheckCircle,
   Clock,
   MapPin,
   AlertCircle,
@@ -58,7 +58,7 @@ export default function ServiceProviderDashboard() {
   const { user } = useAppStore();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [serviceProviderInfo, setServiceProviderInfo] = useState<ServiceProviderInfo>({
     name: "",
@@ -81,17 +81,17 @@ export default function ServiceProviderDashboard() {
       setLocation("/dashboard");
       return;
     }
-    
+
     // Check if service provider info is already submitted
     checkServiceProviderInfoStatus();
   }, [user, setLocation]);
 
   const checkServiceProviderInfoStatus = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/service-provider/info/${user?.id}`, {
+      const response = await fetch(`http://localhost:5001/api/service-provider/info/${user?.id}`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -121,7 +121,7 @@ export default function ServiceProviderDashboard() {
       });
       return false;
     }
-    
+
     if (!serviceProviderInfo.phone || serviceProviderInfo.phone.length !== 10 || !/^\d+$/.test(serviceProviderInfo.phone)) {
       toast({
         title: "Validation Error",
@@ -130,7 +130,7 @@ export default function ServiceProviderDashboard() {
       });
       return false;
     }
-    
+
     if (!serviceProviderInfo.aadhaar || serviceProviderInfo.aadhaar.length !== 12 || !/^\d+$/.test(serviceProviderInfo.aadhaar)) {
       toast({
         title: "Validation Error",
@@ -139,7 +139,7 @@ export default function ServiceProviderDashboard() {
       });
       return false;
     }
-    
+
     if (serviceProviderInfo.skillSet.length === 0) {
       toast({
         title: "Validation Error",
@@ -148,7 +148,7 @@ export default function ServiceProviderDashboard() {
       });
       return false;
     }
-    
+
     if (serviceProviderInfo.yearsOfExperience < 0 || serviceProviderInfo.yearsOfExperience > 50) {
       toast({
         title: "Validation Error",
@@ -157,15 +157,15 @@ export default function ServiceProviderDashboard() {
       });
       return false;
     }
-    
+
     return true;
   };
 
   const handleServiceProviderInfoSubmit = async () => {
     if (!validateServiceProviderInfo()) return;
-    
+
     try {
-      const response = await fetch('http://localhost:5000/api/service-provider/info', {
+      const response = await fetch('http://localhost:5001/api/service-provider/info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,9 +177,9 @@ export default function ServiceProviderDashboard() {
           skillSet: JSON.stringify(serviceProviderInfo.skillSet)
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setInfoSubmitted(true);
         setCurrentStep(2);
@@ -204,10 +204,10 @@ export default function ServiceProviderDashboard() {
   const loadWorkRequests = async () => {
     setIsLoadingRequests(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/service-provider/work-requests?serviceProviderId=${user?.id}`, {
+      const response = await fetch(`http://localhost:5001/api/service-provider/work-requests?serviceProviderId=${user?.id}`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -237,7 +237,7 @@ export default function ServiceProviderDashboard() {
 
   const handleOtpSubmit = async (requestId: string) => {
     const otp = otpInputs[requestId];
-    
+
     if (!otp || otp.length !== 4) {
       toast({
         title: "Invalid OTP",
@@ -248,7 +248,7 @@ export default function ServiceProviderDashboard() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/service-provider/complete-work', {
+      const response = await fetch('http://localhost:5001/api/service-provider/complete-work', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -260,24 +260,24 @@ export default function ServiceProviderDashboard() {
           serviceProviderId: user?.id
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         toast({
           title: "Success",
           description: "Work request completed successfully!",
         });
-        
+
         // Update the request status locally
-        setWorkRequests(prev => 
-          prev.map(req => 
-            req.id === requestId 
+        setWorkRequests(prev =>
+          prev.map(req =>
+            req.id === requestId
               ? { ...req, status: 'completed' as const }
               : req
           )
         );
-        
+
         // Clear the OTP input
         setOtpInputs(prev => ({ ...prev, [requestId]: '' }));
       } else {
@@ -340,9 +340,9 @@ export default function ServiceProviderDashboard() {
             <div className="text-right">
               <div className="text-xl font-bold">{user.name}</div>
               <div className="text-purple-100">Service Provider</div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleLogout}
                 className="mt-2 text-purple-600 border-purple-200 hover:bg-purple-50"
               >
@@ -428,8 +428,8 @@ export default function ServiceProviderDashboard() {
                           checked={serviceProviderInfo.skillSet.includes(skill.id)}
                           onCheckedChange={() => handleSkillToggle(skill.id)}
                         />
-                        <Label 
-                          htmlFor={skill.id} 
+                        <Label
+                          htmlFor={skill.id}
                           className="flex items-center cursor-pointer"
                         >
                           <IconComponent className="h-4 w-4 mr-2" />
@@ -459,7 +459,7 @@ export default function ServiceProviderDashboard() {
               </div>
 
               <div className="flex justify-end">
-                <Button 
+                <Button
                   onClick={handleServiceProviderInfoSubmit}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
@@ -527,7 +527,7 @@ export default function ServiceProviderDashboard() {
                             {request.serviceType}
                           </h3>
                           <p className="text-gray-600 mb-3">{request.description}</p>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                             <div className="flex items-center">
                               <User className="h-4 w-4 mr-2" />
@@ -558,14 +558,14 @@ export default function ServiceProviderDashboard() {
                                 placeholder="Enter 4-digit OTP"
                                 maxLength={4}
                                 value={otpInputs[request.id] || ''}
-                                onChange={(e) => setOtpInputs(prev => ({ 
-                                  ...prev, 
-                                  [request.id]: e.target.value.replace(/\D/g, '') 
+                                onChange={(e) => setOtpInputs(prev => ({
+                                  ...prev,
+                                  [request.id]: e.target.value.replace(/\D/g, '')
                                 }))}
                                 className="mt-1"
                               />
                             </div>
-                            <Button 
+                            <Button
                               onClick={() => handleOtpSubmit(request.id)}
                               className="bg-green-600 hover:bg-green-700"
                               disabled={!otpInputs[request.id] || otpInputs[request.id].length !== 4}

@@ -9,9 +9,11 @@ import serviceProviderRoutes from './routes/service-provider-routes';
 import analyticsRoutes from './routes/analytics-routes';
 import reviewRoutes from './routes/review-routes';
 import sentimentRoutes from './routes/sentiment-routes';
+import blockchainRoutes from './routes/blockchain-routes';
 import { TestService } from './services/test-service';
 
 const router = express.Router();
+console.log('🔄 Loading routes...');
 
 // Health check endpoint
 router.get('/health', (req, res) => {
@@ -96,6 +98,9 @@ router.use('/reviews', reviewRoutes);
 
 // Sentiment analysis routes - For ML-based review analysis and blacklisting
 router.use('/sentiment', sentimentRoutes);
+
+// Blockchain routes - For delivery proofs and ledger
+router.use('/blockchain', blockchainRoutes);
 
 // Auth routes (PostgreSQL) - Will fail gracefully if DB not configured
 router.use('/auth', (req, res, next) => {

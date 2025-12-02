@@ -10,10 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAppStore } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  User, 
-  Package, 
-  CheckCircle, 
+import {
+  User,
+  Package,
+  CheckCircle,
   Clock,
   MapPin,
   Phone,
@@ -26,7 +26,6 @@ interface DonorInfo {
   name: string;
   phone: string;
   address: string;
-  aadhaar: string;
 }
 
 interface FoodItem {
@@ -45,13 +44,12 @@ export default function TempDonorDashboard() {
   const { user } = useAppStore();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [donorInfo, setDonorInfo] = useState<DonorInfo>({
     name: "",
     phone: "",
     address: "",
-    aadhaar: ""
   });
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [numberOfFoodTypes, setNumberOfFoodTypes] = useState(1);
@@ -101,7 +99,7 @@ export default function TempDonorDashboard() {
       });
       return false;
     }
-    
+
     if (!donorInfo.phone || donorInfo.phone.length !== 10 || !/^\d+$/.test(donorInfo.phone)) {
       toast({
         title: "Validation Error",
@@ -110,7 +108,7 @@ export default function TempDonorDashboard() {
       });
       return false;
     }
-    
+
     if (!donorInfo.address.trim()) {
       toast({
         title: "Validation Error",
@@ -119,23 +117,16 @@ export default function TempDonorDashboard() {
       });
       return false;
     }
-    
-    if (!donorInfo.aadhaar || donorInfo.aadhaar.length !== 12 || !/^\d+$/.test(donorInfo.aadhaar)) {
-      toast({
-        title: "Validation Error",
-        description: "Aadhaar number must be exactly 12 digits",
-        variant: "destructive"
-      });
-      return false;
-    }
-    
+
+
+
     return true;
   };
 
   const validateFoodItems = (): boolean => {
     for (let i = 0; i < foodItems.length; i++) {
       const item = foodItems[i];
-      
+
       if (!item.foodType.trim()) {
         toast({
           title: "Validation Error",
@@ -144,7 +135,7 @@ export default function TempDonorDashboard() {
         });
         return false;
       }
-      
+
       if (item.quantity < 2) {
         toast({
           title: "Validation Error",
@@ -153,7 +144,7 @@ export default function TempDonorDashboard() {
         });
         return false;
       }
-      
+
       if (!item.foodTypeCategory) {
         toast({
           title: "Validation Error",
@@ -162,7 +153,7 @@ export default function TempDonorDashboard() {
         });
         return false;
       }
-      
+
       if (!item.storageRequirement) {
         toast({
           title: "Validation Error",
@@ -171,7 +162,7 @@ export default function TempDonorDashboard() {
         });
         return false;
       }
-      
+
       if (!item.preparationTime || !item.preparationDate) {
         toast({
           title: "Validation Error",
@@ -180,7 +171,7 @@ export default function TempDonorDashboard() {
         });
         return false;
       }
-      
+
       if (!item.expiryDate || !item.expiryTime) {
         toast({
           title: "Validation Error",
@@ -190,16 +181,16 @@ export default function TempDonorDashboard() {
         return false;
       }
     }
-    
+
     return true;
   };
 
   const handleDonorInfoSubmit = async () => {
     if (!validateDonorInfo()) return;
-    
+
     try {
       // Store donor info in database
-      const response = await fetch('http://localhost:5000/api/temp-donor/info', {
+      const response = await fetch('http://localhost:5001/api/temp-donor/info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -210,7 +201,7 @@ export default function TempDonorDashboard() {
           ...donorInfo
         }),
       });
-      
+
       if (response.ok) {
         setCurrentStep(2);
         toast({
@@ -231,12 +222,12 @@ export default function TempDonorDashboard() {
 
   const handleFoodDonationSubmit = async () => {
     if (!validateFoodItems()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Store food donation details in database
-      const response = await fetch('http://localhost:5000/api/temp-donor/food-donation', {
+      const response = await fetch('http://localhost:5001/api/temp-donor/food-donation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -247,7 +238,7 @@ export default function TempDonorDashboard() {
           foodItems
         }),
       });
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -334,9 +325,9 @@ export default function TempDonorDashboard() {
               Step {currentStep} of {currentStep === 3 ? 3 : 2}
             </span>
             <span className="text-sm text-gray-500">
-              {currentStep === 1 ? "Donor Information" : 
-               currentStep === 2 ? "Food Donation Details" : 
-               "Donation Complete"}
+              {currentStep === 1 ? "Donor Information" :
+                currentStep === 2 ? "Food Donation Details" :
+                  "Donation Complete"}
             </span>
           </div>
           <Progress value={currentStep === 3 ? 100 : currentStep * 50} className="h-2" />
@@ -402,23 +393,10 @@ export default function TempDonorDashboard() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="aadhaar" className="flex items-center">
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Aadhaar Number *
-                </Label>
-                <Input
-                  id="aadhaar"
-                  value={donorInfo.aadhaar}
-                  onChange={(e) => setDonorInfo({ ...donorInfo, aadhaar: e.target.value })}
-                  placeholder="12-digit Aadhaar number"
-                  maxLength={12}
-                  required
-                />
-              </div>
+
 
               <div className="flex justify-end">
-                <Button 
+                <Button
                   onClick={handleDonorInfoSubmit}
                   className="bg-green-600 hover:bg-green-700"
                 >
@@ -587,13 +565,13 @@ export default function TempDonorDashboard() {
               </div>
 
               <div className="flex justify-between">
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => setCurrentStep(1)}
                 >
                   Back to Donor Information
                 </Button>
-                <Button 
+                <Button
                   onClick={handleFoodDonationSubmit}
                   disabled={isSubmitting}
                   className="bg-green-600 hover:bg-green-700"
@@ -676,15 +654,15 @@ export default function TempDonorDashboard() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-                <Button 
+                <Button
                   onClick={handleAddAnotherEntry}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Package className="h-4 w-4 mr-2" />
                   Add Another Food Entry
                 </Button>
-                
-                <Button 
+
+                <Button
                   variant="outline"
                   onClick={handleLogout}
                   className="border-red-300 text-red-600 hover:bg-red-50"

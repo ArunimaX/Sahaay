@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useAppStore } from "@/lib/store";
-import logoPath from "@assets/00004.png";
+import { Logo } from "@/components/ui/logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Navigation() {
   const [location] = useLocation();
@@ -24,11 +25,10 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" data-testid="link-home">
-            <div className="flex items-center cursor-pointer">
-              <img src={logoPath} alt="Sahaay Logo" className="h-12 w-auto" />
-            </div>
-          </Link>
+          {/* Logo */}
+          <div className="flex items-center cursor-pointer" data-testid="link-home">
+            <Logo />
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
@@ -53,6 +53,7 @@ export function Navigation() {
                 </Button>
               </Link>
             )}
+            <ThemeToggle />
           </div>
 
           {/* Mobile menu button */}
@@ -84,6 +85,9 @@ export function Navigation() {
                     </Button>
                   </Link>
                 )}
+                <div className="pt-4 flex justify-center">
+                  <ThemeToggle />
+                </div>
               </div>
             </SheetContent>
           </Sheet>

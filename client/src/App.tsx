@@ -22,6 +22,8 @@ import TempDonorSuccess from "@/pages/temp-donor-success";
 import NGODashboard from "@/pages/ngo-dashboard";
 import ConsumerDashboard from "@/pages/consumer-dashboard";
 import ServiceProviderDashboard from "@/pages/service-provider-dashboard";
+import BlockchainVerification from "@/pages/blockchain-verification";
+import { BlockchainProofUpload } from "@/components/blockchain-proof-upload";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +44,8 @@ function Router() {
       <Route path="/ngo-dashboard" component={NGODashboard} />
       <Route path="/consumer-dashboard" component={ConsumerDashboard} />
       <Route path="/service-provider-dashboard" component={ServiceProviderDashboard} />
+      <Route path="/blockchain" component={BlockchainVerification} />
+      <Route path="/blockchain/upload" component={BlockchainProofUpload} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
@@ -53,7 +57,7 @@ function App() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/me", { credentials: "include" });
+        const res = await fetch("/api/me", { credentials: "include" });
         if (res.ok) {
           const me = await res.json();
           setUser({ id: me.id, name: me.name, role: me.role, email: me.email, joinedDate: new Date() } as any);

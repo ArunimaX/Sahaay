@@ -9,11 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  User, 
-  Phone, 
-  MapPin, 
-  CheckCircle, 
+import {
+  User,
+  Phone,
+  MapPin,
+  CheckCircle,
   Clock,
   AlertCircle,
   LogOut,
@@ -54,7 +54,7 @@ export default function ConsumerDashboard() {
   const { user } = useAppStore();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [consumerInfo, setConsumerInfo] = useState<ConsumerInfo>({
     name: "",
@@ -80,17 +80,17 @@ export default function ConsumerDashboard() {
       setLocation("/dashboard");
       return;
     }
-    
+
     // Check if consumer info is already submitted
     checkConsumerInfoStatus();
   }, [user, setLocation]);
 
   const checkConsumerInfoStatus = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/service-provider/consumer-info/${user?.id}`, {
+      const response = await fetch(`http://localhost:5001/api/service-provider/consumer-info/${user?.id}`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -118,7 +118,7 @@ export default function ConsumerDashboard() {
       });
       return false;
     }
-    
+
     if (!consumerInfo.phone || consumerInfo.phone.length !== 10 || !/^\d+$/.test(consumerInfo.phone)) {
       toast({
         title: "Validation Error",
@@ -127,7 +127,7 @@ export default function ConsumerDashboard() {
       });
       return false;
     }
-    
+
     if (!consumerInfo.address.trim()) {
       toast({
         title: "Validation Error",
@@ -136,15 +136,15 @@ export default function ConsumerDashboard() {
       });
       return false;
     }
-    
+
     return true;
   };
 
   const handleConsumerInfoSubmit = async () => {
     if (!validateConsumerInfo()) return;
-    
+
     try {
-      const response = await fetch('http://localhost:5000/api/service-provider/consumer-info', {
+      const response = await fetch('http://localhost:5001/api/service-provider/consumer-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,9 +155,9 @@ export default function ConsumerDashboard() {
           ...consumerInfo
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setInfoSubmitted(true);
         setCurrentStep(2);
@@ -181,10 +181,10 @@ export default function ConsumerDashboard() {
 
   const loadWorkRequests = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/service-provider/consumer-requests?consumerId=${user?.id}`, {
+      const response = await fetch(`http://localhost:5001/api/service-provider/consumer-requests?consumerId=${user?.id}`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -205,7 +205,7 @@ export default function ConsumerDashboard() {
       });
       return false;
     }
-    
+
     if (!newRequest.description.trim()) {
       toast({
         title: "Validation Error",
@@ -214,7 +214,7 @@ export default function ConsumerDashboard() {
       });
       return false;
     }
-    
+
     if (!newRequest.address.trim()) {
       toast({
         title: "Validation Error",
@@ -223,15 +223,15 @@ export default function ConsumerDashboard() {
       });
       return false;
     }
-    
+
     return true;
   };
 
   const handleCreateRequest = async () => {
     if (!validateNewRequest()) return;
-    
+
     try {
-      const response = await fetch('http://localhost:5000/api/service-provider/work-request', {
+      const response = await fetch('http://localhost:5001/api/service-provider/work-request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -242,15 +242,15 @@ export default function ConsumerDashboard() {
           ...newRequest
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         toast({
           title: "Success",
           description: "Work request created successfully",
         });
-        
+
         // Reset form
         setNewRequest({
           serviceType: "",
@@ -259,7 +259,7 @@ export default function ConsumerDashboard() {
           urgency: "medium"
         });
         setShowCreateRequest(false);
-        
+
         // Reload requests
         loadWorkRequests();
       } else {
@@ -322,9 +322,9 @@ export default function ConsumerDashboard() {
             <div className="text-right">
               <div className="text-xl font-bold">{user.name}</div>
               <div className="text-green-100">Consumer</div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleLogout}
                 className="mt-2 text-green-600 border-green-200 hover:bg-green-50"
               >
@@ -398,7 +398,7 @@ export default function ConsumerDashboard() {
               </div>
 
               <div className="flex justify-end">
-                <Button 
+                <Button
                   onClick={handleConsumerInfoSubmit}
                   className="bg-green-600 hover:bg-green-700"
                 >
@@ -425,8 +425,8 @@ export default function ConsumerDashboard() {
                   </CardDescription>
                 </CardHeader>
               </Card>
-              
-              <Button 
+
+              <Button
                 onClick={() => setShowCreateRequest(true)}
                 className="bg-green-600 hover:bg-green-700"
               >
@@ -495,13 +495,13 @@ export default function ConsumerDashboard() {
                   </div>
 
                   <div className="flex gap-4 justify-end">
-                    <Button 
+                    <Button
                       variant="outline"
                       onClick={() => setShowCreateRequest(false)}
                     >
                       Cancel
                     </Button>
-                    <Button 
+                    <Button
                       onClick={handleCreateRequest}
                       className="bg-green-600 hover:bg-green-700"
                     >
@@ -520,7 +520,7 @@ export default function ConsumerDashboard() {
                     <Wrench className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">No Work Requests</h3>
                     <p className="text-gray-600 mb-4">You haven't created any work requests yet.</p>
-                    <Button 
+                    <Button
                       onClick={() => setShowCreateRequest(true)}
                       className="bg-green-600 hover:bg-green-700"
                     >
@@ -549,13 +549,13 @@ export default function ConsumerDashboard() {
                             {request.serviceType}
                           </h3>
                           <p className="text-gray-600 mb-3">{request.description}</p>
-                          
+
                           <div className="flex items-center text-sm text-gray-600">
                             <MapPin className="h-4 w-4 mr-2" />
                             <span>{request.address}</span>
                           </div>
                         </div>
-                        
+
                         <div className="text-right text-sm text-gray-500">
                           <Clock className="h-4 w-4 inline mr-1" />
                           {new Date(request.createdAt).toLocaleDateString()}

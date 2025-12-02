@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/lib/store";
 import { InteractiveMap } from "@/components/interactive-map";
-import { 
-  Users, 
+import {
+  Users,
   DollarSign,
   Shield,
   Activity,
@@ -91,11 +91,11 @@ function ServiceProviderSection() {
     setLoading(true);
     try {
       console.log('🔄 Loading service provider data...');
-      
+
       const [providersRes, requestsRes, logsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/service-provider/all'),
-        fetch('http://localhost:5000/api/service-provider/all-requests'),
-        fetch('http://localhost:5000/api/service-provider/completed-logs')
+        fetch('http://localhost:5001/api/service-provider/all'),
+        fetch('http://localhost:5001/api/service-provider/all-requests'),
+        fetch('http://localhost:5001/api/service-provider/completed-logs')
       ]);
 
       console.log('📊 API Responses:', {
@@ -259,15 +259,15 @@ function ServiceProviderSection() {
                         <div className="flex items-center space-x-2">
                           <Badge className={
                             request.urgency === 'high' ? 'bg-red-100 text-red-800' :
-                            request.urgency === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
+                              request.urgency === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-green-100 text-green-800'
                           }>
                             {request.urgency.toUpperCase()}
                           </Badge>
                           <Badge variant="outline" className={
                             request.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            request.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
-                            'bg-gray-100 text-gray-800'
+                              request.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                                'bg-gray-100 text-gray-800'
                           }>
                             {request.status.toUpperCase()}
                           </Badge>
@@ -475,7 +475,7 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-semibold text-blue-900">Advanced Analytics Dashboard</h3>
                   <p className="text-blue-700 text-sm">View comprehensive food donation analytics, user growth trends, and detailed insights</p>
                 </div>
-                <Button 
+                <Button
                   onClick={() => setLocation("/admin-analytics")}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
@@ -581,7 +581,7 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
-              
+
               {/* Activity Timeline */}
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg text-gray-800 border-b pb-2">Activity Timeline</h3>
@@ -594,7 +594,7 @@ export default function AdminDashboard() {
                       <div className="text-xs text-gray-500">1 minute ago</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                     <div className="flex-1">
@@ -603,7 +603,7 @@ export default function AdminDashboard() {
                       <div className="text-xs text-gray-500">3 minutes ago</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
                     <div className="flex-1">
@@ -612,7 +612,7 @@ export default function AdminDashboard() {
                       <div className="text-xs text-gray-500">7 minutes ago</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
                     <div className="flex-1">
@@ -704,7 +704,7 @@ export default function AdminDashboard() {
                       <div className="text-xs text-gray-500 mt-1">{r.createdAt ? new Date(r.createdAt).toLocaleString() : ""}</div>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                     <div className="text-center p-3 bg-gray-50 rounded">
                       <div className="text-lg font-bold text-blue-600">{r.totalItems}</div>
@@ -719,7 +719,7 @@ export default function AdminDashboard() {
                       <div className="text-sm text-gray-600">Location</div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h5 className="font-medium text-gray-900">Donated Items:</h5>
                     <div className="flex flex-wrap gap-2">
@@ -792,15 +792,15 @@ export default function AdminDashboard() {
                   Showing 24 of 156 images
                 </div>
               </div>
-              
+
               {/* Image Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Image Card 1 */}
                 <div className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <div className="relative">
-                    <img 
-                      src="/attached_assets/Food-Distribution-Indonesia-Antata-Foto-Reuters-752x357.jpg" 
-                      alt="Food distribution in Mumbai" 
+                    <img
+                      src="/attached_assets/Food-Distribution-Indonesia-Antata-Foto-Reuters-752x357.jpg"
+                      alt="Food distribution in Mumbai"
                       className="w-full h-48 object-cover"
                     />
                     <div className="absolute top-2 right-2">
@@ -824,13 +824,13 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Image Card 2 */}
                 <div className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <div className="relative">
-                    <img 
-                      src="/attached_assets/00004.png" 
-                      alt="Food distribution in Delhi" 
+                    <img
+                      src="/attached_assets/00004.png"
+                      alt="Food distribution in Delhi"
                       className="w-full h-48 object-cover"
                     />
                     <div className="absolute top-2 right-2">
@@ -854,13 +854,13 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Image Card 3 */}
                 <div className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <div className="relative">
-                    <img 
-                      src="/attached_assets/00004_1755739132526.png" 
-                      alt="Food distribution in Bangalore" 
+                    <img
+                      src="/attached_assets/00004_1755739132526.png"
+                      alt="Food distribution in Bangalore"
                       className="w-full h-48 object-cover"
                     />
                     <div className="absolute top-2 right-2">
@@ -885,7 +885,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Image Statistics */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div className="text-center">
@@ -963,18 +963,18 @@ export default function AdminDashboard() {
                   </Button>
                 </div>
               </div>
-              
+
               {/* Map Container */}
               <div className="relative min-h-[400px] bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
                 <InteractiveMap />
-                
+
                 {/* Overlay for future heat map integration */}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
                   <div className="text-xs text-gray-600">Map Layer: Standard</div>
                   <div className="text-xs text-gray-500">Data Points: 1,247</div>
                 </div>
               </div>
-              
+
               {/* Map Legend */}
               <div className="flex items-center justify-center space-x-6 text-sm">
                 <div className="flex items-center space-x-2">
@@ -1012,12 +1012,12 @@ export default function AdminDashboard() {
                 </CardDescription>
               </div>
               <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     // Trigger sentiment analysis
-                    fetch('http://localhost:5000/api/sentiment/analyze-all', { method: 'POST' })
+                    fetch('http://localhost:5001/api/sentiment/analyze-all', { method: 'POST' })
                       .then(res => res.json())
                       .then(data => {
                         console.log('Sentiment analysis completed:', data);
@@ -1264,10 +1264,10 @@ function BlacklistSection() {
         <p className="text-gray-600 mb-4">
           All entities are performing well with positive reviews. No blacklist actions needed.
         </p>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => {
-            fetch('http://localhost:5000/api/sentiment/analyze-all', { method: 'POST' })
+            fetch('http://localhost:5001/api/sentiment/analyze-all', { method: 'POST' })
               .then(() => refetch())
               .catch(err => console.error('Error:', err));
           }}
@@ -1312,9 +1312,8 @@ function BlacklistSection() {
           <div key={entity.id} className="border rounded-lg p-4 hover:bg-gray-50">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  entity.entityType === 'ngo' ? 'bg-blue-100' : 'bg-purple-100'
-                }`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${entity.entityType === 'ngo' ? 'bg-blue-100' : 'bg-purple-100'
+                  }`}>
                   {entity.entityType === 'ngo' ? (
                     <Users className={`h-5 w-5 ${entity.entityType === 'ngo' ? 'text-blue-600' : 'text-purple-600'}`} />
                   ) : (
@@ -1332,9 +1331,9 @@ function BlacklistSection() {
                     </Badge>
                     <Badge className={
                       entity.status === 'flagged' ? 'bg-red-100 text-red-800' :
-                      entity.status === 'investigated' ? 'bg-yellow-100 text-yellow-800' :
-                      entity.status === 'cleared' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
+                        entity.status === 'investigated' ? 'bg-yellow-100 text-yellow-800' :
+                          entity.status === 'cleared' ? 'bg-green-100 text-green-800' :
+                            'bg-gray-100 text-gray-800'
                     }>
                       {entity.status.toUpperCase()}
                     </Badge>
@@ -1372,8 +1371,8 @@ function BlacklistSection() {
             <div className="flex items-center space-x-2">
               {entity.status === 'flagged' && (
                 <>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => handleAdminAction(entity.id, 'investigated', 'Under admin investigation')}
                     disabled={actionLoading}
@@ -1381,8 +1380,8 @@ function BlacklistSection() {
                     <Eye className="h-4 w-4 mr-1" />
                     Investigate
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     className="text-green-600 border-green-600 hover:bg-green-50"
                     onClick={() => handleAdminAction(entity.id, 'cleared', 'Reviewed and cleared by admin')}
@@ -1391,8 +1390,8 @@ function BlacklistSection() {
                     <CheckCircle className="h-4 w-4 mr-1" />
                     Clear
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     className="text-red-600 border-red-600 hover:bg-red-50"
                     onClick={() => handleAdminAction(entity.id, 'blacklisted', 'Confirmed for blacklisting')}
@@ -1403,11 +1402,11 @@ function BlacklistSection() {
                   </Button>
                 </>
               )}
-              
+
               {entity.status === 'investigated' && (
                 <>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     className="text-green-600 border-green-600 hover:bg-green-50"
                     onClick={() => handleAdminAction(entity.id, 'cleared', 'Investigation complete - cleared')}
@@ -1416,8 +1415,8 @@ function BlacklistSection() {
                     <CheckCircle className="h-4 w-4 mr-1" />
                     Clear
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     className="text-red-600 border-red-600 hover:bg-red-50"
                     onClick={() => handleAdminAction(entity.id, 'blacklisted', 'Investigation complete - blacklisted')}
@@ -1429,8 +1428,8 @@ function BlacklistSection() {
                 </>
               )}
 
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="ghost"
                 onClick={() => setSelectedEntity(entity)}
               >
